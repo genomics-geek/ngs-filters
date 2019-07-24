@@ -6,6 +6,10 @@
   "scripts": {
     "test": "jest --verbose"
   },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
+  },
   "keywords": [
     "variant",
     "filtering",
