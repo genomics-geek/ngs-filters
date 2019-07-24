@@ -1,0 +1,22 @@
+{
+  "name": "ngs-filters",
+  "version": "0.1.0",
+  "description": "Collection of JavaScript functions to be used with slivar expr",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "keywords": [
+    "variant",
+    "filtering",
+    "NGS",
+    "analysis"
+  ],
+  "author": "Michael A. Gonzalez",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "24.8.0",
+    "prettier": "1.18.2"
+  }
+}
