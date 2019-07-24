@@ -4,9 +4,8 @@ function allelic_balance_high_quality(sample) {
   // This function ensures that the allelic balance observed
   // is what is expected for given zygosity
   if (sample.alts == 0) return sample.AB <= 0.01
-  if (sample.alts == 1) return sample.AB >= 0.2 && sample.AB <= 0.8
-  if (sample.alts == 2) return sample.AB >= 0.99
-  return false
+  else if (sample.alts == 1) return sample.AB >= 0.2 && sample.AB <= 0.8
+  else if (sample.alts == 2) return sample.AB >= 0.99
 }
 
 function high_quality(sample, depth, gq) {
@@ -194,7 +193,7 @@ function in_hgmd(INFO, key, position) {
     return false
   }
 
-  var impact = false
+  let impact = false
   const effects = INFO[key].split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
@@ -221,7 +220,7 @@ function nonsynonymous(INFO, key, position) {
 
   const types = ['missense', 'splice', 'insertion', 'deletion', 'frameshift', 'stop', 'start', 'coding sequence']
 
-  var impact = false
+  let impact = false
   const effects = INFO[key].split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
@@ -250,14 +249,13 @@ function cohort_af(INFO, key, position, cutoff) {
     return false
   }
 
-  var impact = false
+  let impact = false
   const effects = INFO[key].split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
-
-    if (data[position] == undefined) {
-      imppact = true
-    } else if (data[position] <= cutoff) {
+    if (typeof data[position] == 'undefined') {
+      impact = true
+    } else if (data[position] <= parseFloat(cutoff)) {
       impact = true
     }
   })
