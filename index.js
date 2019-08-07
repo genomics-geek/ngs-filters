@@ -8,7 +8,7 @@ function allelic_balance_high_quality(sample) {
   // is what is expected for given zygosity
   if (sample.alts == 0) return sample.AB <= 0.01
   else if (sample.alts == 1) return sample.AB >= 0.2 && sample.AB <= 0.8
-  else if (sample.alts == 2) return sample.AB >= 0.99
+  return sample.AB >= 0.9
 }
 
 function high_quality(sample, depth, gq) {
@@ -142,45 +142,67 @@ function remove_compound_heterozygous_side(INFO, key) {
   else return true
 }
 
-function in_hgmd(INFO, key, position) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 28
-
-  if (!(key in INFO)) return false
-
-  var impact = false
-  const effects = INFO[key].split(',')
-  effects.forEach(function(effect) {
-    const data = effect.split('|')
-    if (data[position]) impact = true
-  })
-
-  return impact
+function proband_has_variant(proband) {
+  return proband.alts > 0
 }
 
-function nonsynonymous(INFO, key, position) {
+function present_in_database(INFO, key, position) {
   if (key == undefined) key = 'CSQ'
   if (position == undefined) position = 1
   if (!(key in INFO)) return false
 
-  const types = ['missense', 'splice', 'insertion', 'devarion', 'frameshift', 'stop', 'start', 'coding sequence']
-
-  var impact = false
+  var result = false
   const effects = INFO[key].split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
-    const consequence = data[position]
+    if (data[position]) result = true
+    else result = false
+  })
+
+  return result
+}
+
+function includes_filter(INFO, key, position, types) {
+  if (key == undefined) key = 'CSQ'
+  if (position == undefined) position = 1
+  if (types == undefined) types = []
+  if (!(key in INFO)) return false
+
+  var result = false
+  const effects = INFO[key].split(',')
+  effects.forEach(function(effect) {
+    const data = effect.split('|')
+    const element = data[position]
     types.forEach(function(type) {
-      if (consequence.includes(type)) impact = true
+      if (element.includes(type)) result = true
     })
   })
 
-  return impact
+  return result
 }
 
-function cohort_af(INFO, key, position, cutoff) {
+function match_filter(INFO, key, position, types) {
   if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 35
+  if (position == undefined) position = 1
+  if (types == undefined) types = []
+  if (!(key in INFO)) return false
+
+  var result = false
+  const effects = INFO[key].split(',')
+  effects.forEach(function(effect) {
+    const data = effect.split('|')
+    const element = data[position]
+    types.forEach(function(type) {
+      if (element == type) result = true
+    })
+  })
+
+  return result
+}
+
+function gte_filter(INFO, key, position, cutoff) {
+  if (key == undefined) key = 'CSQ'
+  if (position == undefined) position = 1
   if (cutoff == undefined) cutoff = 0.01
   if (!(key in INFO)) return false
 
@@ -188,7 +210,41 @@ function cohort_af(INFO, key, position, cutoff) {
   const effects = INFO[key].split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
-    if (typeof data[position] == 'undefined') impact = true
+    if (!data[position]) impact = false
+    else if (data[position] >= parseFloat(cutoff)) impact = true
+  })
+
+  return impact
+}
+
+function lte_filter(INFO, key, position, cutoff) {
+  if (key == undefined) key = 'CSQ'
+  if (position == undefined) position = 1
+  if (cutoff == undefined) cutoff = 0.01
+  if (!(key in INFO)) return false
+
+  var impact = false
+  const effects = INFO[key].split(',')
+  effects.forEach(function(effect) {
+    const data = effect.split('|')
+    if (!data[position]) impact = false
+    else if (data[position] <= parseFloat(cutoff)) impact = true
+  })
+
+  return impact
+}
+
+function maf_filter(INFO, key, position, cutoff) {
+  if (key == undefined) key = 'CSQ'
+  if (position == undefined) position = 1
+  if (cutoff == undefined) cutoff = 0.01
+  if (!(key in INFO)) return false
+
+  var impact = false
+  const effects = INFO[key].split(',')
+  effects.forEach(function(effect) {
+    const data = effect.split('|')
+    if (!data[position]) impact = true
     else if (data[position] <= parseFloat(cutoff)) impact = true
   })
 
@@ -207,7 +263,11 @@ module.exports = {
   x_linked_homozygous_recessive,
   compound_heterozygous_side,
   remove_compound_heterozygous_side,
-  in_hgmd,
-  nonsynonymous,
-  cohort_af,
+  proband_has_variant,
+  present_in_database,
+  includes_filter,
+  match_filter,
+  gte_filter,
+  lte_filter,
+  maf_filter,
 }
