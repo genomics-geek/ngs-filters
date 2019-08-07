@@ -1,6 +1,8 @@
 const { allelic_balance_high_quality } = require('./index')
 const { high_quality } = require('./index')
 const { uniparental_disomy } = require('./index')
+const { sample_meets_dominant } = require('./index')
+const { dominant } = require('./index')
 const { denovo } = require('./index')
 const { x_linked_denovo } = require('./index')
 const { homozygous_recessive } = require('./index')
@@ -60,6 +62,75 @@ test.each([
   ['denovo: dad is affected', { alts: 1 }, { alts: 0 }, { alts: 0, affected: true }, false],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(denovo(kid, mom, dad)).toBe(expected)
+})
+
+test.each([
+  ['sample_meets_dominant: can handle missing data', {}, false],
+  ['sample_meets_dominant: affected and heterozygous', { affected: true, alts: 1 }, true],
+  ['sample_meets_dominant: affected and homozygous REF', { affected: true, alts: 0 }, false],
+  ['sample_meets_dominant: affected and homozygous ALT', { affected: true, alts: 2 }, false],
+  ['sample_meets_dominant: unaffected and homozygous REF', { affected: false, alts: 0 }, true],
+  ['sample_meets_dominant: unaffected and heterozygous', { affected: false, alts: 1 }, false],
+  ['sample_meets_dominant: unaffected and homozygous ALT', { affected: false, alts: 2 }, false],
+])('%s: Data: %j', (a, data, expected) => {
+  expect(sample_meets_dominant(data)).toBe(expected)
+})
+
+test.each([
+  ['dominant: can handle missing dad', { alts: 1 }, { alts: 0, affected: false }, undefined, false],
+  ['dominant: can handle missing mom', { alts: 1 }, undefined, { alts: 0, affected: false }, false],
+  [
+    'dominant: both parents are unaffected',
+    { alts: 1 },
+    { alts: 0, affected: false },
+    { alts: 0, affected: false },
+    false,
+  ],
+  ['dominant: can handle missing both parents', { alts: 1 }, undefined, undefined, false],
+  [
+    'dominant: proband is homozygous REF',
+    { alts: 0 },
+    { alts: 0, affected: false },
+    { alts: 1, affected: true },
+    false,
+  ],
+  [
+    'dominant: proband is homozygous ALT',
+    { alts: 2 },
+    { alts: 0, affected: false },
+    { alts: 1, affected: true },
+    false,
+  ],
+  [
+    'dominant: mom is affected and heterozygous and dad is unaffected and REF',
+    { alts: 1 },
+    { alts: 1, affected: true },
+    { alts: 0, affected: false },
+    true,
+  ],
+  [
+    'dominant: dad is affected and heterozygous and mom is unaffected and REF',
+    { alts: 1 },
+    { alts: 0, affected: false },
+    { alts: 1, affected: true },
+    true,
+  ],
+  [
+    'dominant: mom is unaffected and heterozygous',
+    { alts: 1 },
+    { alts: 1, affected: false },
+    { alts: 0, affected: false },
+    false,
+  ],
+  [
+    'dominant: dad is unaffected and heterozygous',
+    { alts: 1 },
+    { alts: 0, affected: false },
+    { alts: 1, affected: false },
+    false,
+  ],
+])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
+  expect(dominant(kid, mom, dad)).toBe(expected)
 })
 
 test.each([
