@@ -55,7 +55,9 @@ test.each([
   ['denovo: parents are both homozygous REF', { alts: 1 }, { alts: 0 }, { alts: 0 }, true],
   ['denovo: proband is homozygous', { alts: 2 }, { alts: 0 }, { alts: 0 }, false],
   ['denovo: mom is heterozygous', { alts: 1 }, { alts: 1 }, { alts: 0 }, false],
+  ['denovo: mom is affected', { alts: 1 }, { alts: 0, affected: true }, { alts: 0 }, false],
   ['denovo: dad is heterozygous', { alts: 1 }, { alts: 0 }, { alts: 1 }, false],
+  ['denovo: dad is affected', { alts: 1 }, { alts: 0 }, { alts: 0, affected: true }, false],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(denovo(kid, mom, dad)).toBe(expected)
 })
@@ -68,7 +70,9 @@ test.each([
   ['x_linked_denovo: proband is homozygous', { alts: 2 }, { alts: 0 }, { alts: 0 }, true],
   ['x_linked_denovo: proband is female', { alts: 1, sex: 'female' }, { alts: 0 }, { alts: 0 }, false],
   ['x_linked_denovo: mom is heterozygous', { alts: 1, sex: 'male' }, { alts: 1 }, { alts: 0 }, false],
+  ['x_linked_denovo: mom is affected', { alts: 1, sex: 'male' }, { alts: 0, affected: true }, { alts: 0 }, false],
   ['x_linked_denovo: dad is hemizygous', { alts: 1, sex: 'male' }, { alts: 0 }, { alts: 1 }, false],
+  ['x_linked_denovo: dad is affected', { alts: 1, sex: 'male' }, { alts: 0 }, { alts: 0, affected: true }, false],
   ['x_linked_denovo: proband is homozygous REF', { alts: 0, sex: 'male' }, { alts: 0 }, { alts: 1 }, false],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(x_linked_denovo(kid, mom, dad)).toBe(expected)
@@ -77,8 +81,8 @@ test.each([
 test.each([
   ['homozygous_recessive: can handle missing parents', { alts: 2 }, undefined, undefined, true],
   ['homozygous_recessive: mom is heterozygous and dad is heterozygous', { alts: 2 }, { alts: 1 }, { alts: 1 }, true],
-  ['homozygous_recessive: mom is homozygous and dad is heterozygous', { alts: 2 }, { alts: 2 }, { alts: 1 }, true],
-  ['homozygous_recessive: mom is heterozygous and dad is homozygous', { alts: 2 }, { alts: 1 }, { alts: 2 }, true],
+  ['homozygous_recessive: mom is homozygous and dad is heterozygous', { alts: 2 }, { alts: 2 }, { alts: 1 }, false],
+  ['homozygous_recessive: mom is heterozygous and dad is homozygous', { alts: 2 }, { alts: 1 }, { alts: 2 }, false],
   ['homozygous_recessive: proband is heterozygous', { alts: 1 }, { alts: 1 }, { alts: 2 }, false],
   ['homozygous_recessive: proband is reference', { alts: 0 }, { alts: 1 }, { alts: 2 }, false],
   [
@@ -89,10 +93,24 @@ test.each([
     false,
   ],
   [
+    'homozygous_recessive: proband is homozygous but mom is affected',
+    { alts: 2 },
+    { alts: 1, affected: true },
+    { alts: 1 },
+    false,
+  ],
+  [
     'homozygous_recessive: proband is homozygous but dad is homozygous REF',
     { alts: 2 },
     { alts: 1 },
     { alts: 0 },
+    false,
+  ],
+  [
+    'homozygous_recessive: proband is homozygous but dad is affected',
+    { alts: 2 },
+    { alts: 1 },
+    { alts: 1, affected: true },
     false,
   ],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
@@ -126,6 +144,8 @@ test.each([
     { alts: 0 },
     false,
   ],
+  ['x_linked_homozygous_recessive: mom is affected', { alts: 1 }, { alts: 1, affected: true }, { alts: 0 }, false],
+  ['x_linked_homozygous_recessive: dad is affected', { alts: 1 }, { alts: 1 }, { alts: 0, affected: true }, false],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(x_linked_homozygous_recessive(kid, mom, dad)).toBe(expected)
 })
@@ -144,14 +164,14 @@ test.each([
     { alts: 1 },
     { alts: 2 },
     { alts: 1 },
-    true,
+    false,
   ],
   [
     'compound_heterozygous_side: mom is heterozygous and dad is homozygous',
     { alts: 1 },
     { alts: 1 },
     { alts: 2 },
-    true,
+    false,
   ],
   ['compound_heterozygous_side: mom and dad are both homozygous REF', { alts: 1 }, { alts: 0 }, { alts: 0 }, false],
   [
@@ -166,6 +186,20 @@ test.each([
     { alts: 1 },
     { alts: 0 },
     undefined,
+    false,
+  ],
+  [
+    'compound_heterozygous_side: mom is heterozygous and dad is heterozygous, but mom is affected',
+    { alts: 1 },
+    { alts: 1, affected: true },
+    { alts: 1 },
+    false,
+  ],
+  [
+    'compound_heterozygous_side: mom is heterozygous and dad is heterozygous, but dad is affected',
+    { alts: 1 },
+    { alts: 1 },
+    { alts: 1, affected: true },
     false,
   ],
   ['compound_heterozygous_side: proband is not heterozygous', { alts: 0 }, { alts: 0 }, undefined, false],
