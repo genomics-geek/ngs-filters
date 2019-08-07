@@ -25,6 +25,28 @@ function uniparental_disomy(proband, mom, dad) {
   )
 }
 
+function sample_meets_dominant(sample) {
+  if (sample.affected == true && sample.alts == 1) return true
+  if (sample.affected == false && sample.alts == 0) return true
+  return false
+}
+
+function dominant(proband, mom, dad) {
+  if (mom == undefined) mom = {}
+  if (dad == undefined) dad = {}
+
+  if (mom.affected == false && dad.affected == false) return false
+
+  if (proband.alts == 1) {
+    if (sample_meets_dominant(mom) == false) return false
+    if (sample_meets_dominant(dad) == false) return false
+  } else {
+    return false
+  }
+
+  return true
+}
+
 function denovo(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
@@ -177,6 +199,8 @@ module.exports = {
   allelic_balance_high_quality,
   high_quality,
   uniparental_disomy,
+  sample_meets_dominant,
+  dominant,
   denovo,
   x_linked_denovo,
   homozygous_recessive,
