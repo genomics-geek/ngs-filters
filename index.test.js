@@ -9,9 +9,13 @@ const { homozygous_recessive } = require('./index')
 const { x_linked_homozygous_recessive } = require('./index')
 const { compound_heterozygous_side } = require('./index')
 const { remove_compound_heterozygous_side } = require('./index')
-const { in_hgmd } = require('./index')
-const { nonsynonymous } = require('./index')
-const { cohort_af } = require('./index')
+const { proband_has_variant } = require('./index')
+const { present_in_database } = require('./index')
+const { includes_filter } = require('./index')
+const { match_filter } = require('./index')
+const { gte_filter } = require('./index')
+const { lte_filter } = require('./index')
+const { maf_filter } = require('./index')
 
 test.each([
   ['allelic_balance_high_quality: homozygous REF with high AB', { alts: 0, AB: 0.2 }, false],
@@ -25,10 +29,11 @@ test.each([
 })
 
 test.each([
-  ['high_quality: high DP but low GQ', { DP: 100, GQ: 5 }, false],
-  ['high_quality: low DP but high GQ', { DP: 1, GQ: 75 }, false],
-])('%s: %j equals %p', (a, b, expected) => {
-  expect(high_quality(b)).toBe(expected)
+  ['high_quality: can set defaults', { DP: 100, GQ: 5 }, 1, 1, true],
+  ['high_quality: high DP but low GQ', { DP: 100, GQ: 5 }, undefined, undefined, false],
+  ['high_quality: low DP but high GQ', { DP: 1, GQ: 75 }, undefined, undefined, false],
+])('%s: %j equals %p. DP: %s GQ: %s', (a, b, depth, gq, expected) => {
+  expect(high_quality(b, depth, gq)).toBe(expected)
 })
 
 test.each([
@@ -279,55 +284,227 @@ test.each([
 })
 
 test.each([
-  ['remove_compound_heterozygous_side: can handle defaults', { compound_heterozygous_side: 'id' }, false],
+  ['remove_compound_heterozygous_side: can handle defaults', { compound_heterozygous_side: 'id' }, undefined, false],
   [
     'remove_compound_heterozygous_side: will remove compound_heterozygous_side',
     { compound_heterozygous_side: 'id' },
+    undefined,
     false,
   ],
-  ['remove_compound_heterozygous_side: will not remove compound_heterozygous_side', {}, true],
-])('%s: INFO: %j equals %p', (a, INFO, expected) => {
-  expect(remove_compound_heterozygous_side(INFO)).toBe(expected)
+  [
+    'remove_compound_heterozygous_side: will remove compound_heterozygous_side',
+    { compound_heterozygous_side2: 'id' },
+    'compound_heterozygous_side2',
+    false,
+  ],
+  ['remove_compound_heterozygous_side: will not remove compound_heterozygous_side', {}, undefined, true],
+])('%s: INFO: %j key: %s equals %p', (a, INFO, key, expected) => {
+  expect(remove_compound_heterozygous_side(INFO, key)).toBe(expected)
 })
 
 test.each([
-  ['in_hgmd: can handle missing CSQ', {}, false],
-  ['in_hgmd: HGMD ID is not set', { CSQ: 'x||' }, false],
-  ['in_hgmd: HGMD ID is set', { CSQ: 'x|x|' }, true],
+  ['proband_has_variant: can handle missing data', {}, false],
+  ['proband_has_variant: proband is homozygous REF', { alts: 0 }, false],
+  ['proband_has_variant: proband is homozygous ALT', { alts: 2 }, true],
+  ['proband_has_variant: proband is heterozygous', { alts: 1 }, true],
 ])('%s: %j equals %p', (a, info, expected) => {
-  expect(in_hgmd(info, 'CSQ', 1)).toBe(expected)
+  expect(proband_has_variant(info)).toBe(expected)
 })
 
 test.each([
-  ['in_hgmd: can handle default parameters', { CSQ: '||||||||||||||||||||||||||||x||||||||' }, true],
-  ['in_hgmd: can handle default parameters', { CSQ: '||||||||||||||||||||||||||||||||||||' }, false],
-  ['in_hgmd: can handle default parameters', { CSQ: '||||' }, false],
-])('%s: %j equals %p', (a, info, expected) => {
-  expect(in_hgmd(info)).toBe(expected)
+  ['present_in_database: can handle missing', {}, undefined, undefined, false],
+  [
+    'present_in_database: can handle default parameters',
+    { CSQ: '|x|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    true,
+  ],
+  ['present_in_database: is not present', { CSQ: '||||||||||||||||||||||||||||||||||||' }, undefined, undefined, false],
+  [
+    'present_in_database: can handle setting key and position',
+    { BSQ: '||x||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    true,
+  ],
+])('%s: %j key: %s position: %s equals %p', (a, info, key, position, expected) => {
+  expect(present_in_database(info, key, position)).toBe(expected)
 })
 
 test.each([
-  ['nonsynonymous: can handle missing CSQ', {}, false],
-  ['nonsynonymous: can filter out variants that are not nonsynonymous', { CSQ: 'x|synonymous|' }, false],
-  ['nonsynonymous: will retain nonsynonymous filters', { CSQ: 'x|splice|' }, true],
-])('%s: %j equals %p', (a, info, expected) => {
-  expect(nonsynonymous(info)).toBe(expected)
+  ['includes_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'includes_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    false,
+  ],
+  [
+    'includes_filter: matches',
+    { CSQ: '|missense2|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    ['missense'],
+    true,
+  ],
+  [
+    'includes_filter: does not match',
+    { CSQ: '|missense2|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    ['frameshift'],
+    false,
+  ],
+  [
+    'includes_filter: can handle setting key and position',
+    { BSQ: '||frameshift2||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    ['frameshift'],
+    true,
+  ],
+])('%s: %j key: %s position: %s types: %j equals %p', (a, info, key, position, types, expected) => {
+  expect(includes_filter(info, key, position, types)).toBe(expected)
 })
 
 test.each([
-  ['cohort_af: can handle missing CSQ', {}, false],
-  ['cohort_af: AF is not set', { CSQ: 'x||' }, true],
-  ['cohort_af: AF is below cutoff', { CSQ: 'x|0.001|' }, true],
-  ['cohort_af: AF is above cutoff', { CSQ: 'x|0.5|' }, false],
-])('%s: %j equals %p', (a, info, expected) => {
-  expect(cohort_af(info, 'CSQ', 1)).toBe(expected)
+  ['match_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'match_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    false,
+  ],
+  [
+    'match_filter: matches',
+    { CSQ: '|missense|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    ['missense'],
+    true,
+  ],
+  [
+    'match_filter: does not match',
+    { CSQ: '|frameshift2|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    ['frameshift'],
+    false,
+  ],
+  [
+    'match_filter: can handle setting key and position',
+    { BSQ: '||frameshift||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    ['frameshift'],
+    true,
+  ],
+])('%s: %j key: %s position: %s types: %j equals %p', (a, info, key, position, types, expected) => {
+  expect(match_filter(info, key, position, types)).toBe(expected)
 })
 
 test.each([
-  ['cohort_af: can handle default parameters', { CSQ: '|||||||||||||||||||||||||||||||||||0.2|' }, false],
-  ['cohort_af: can handle default parameters', { CSQ: '|||||||||||||||||||||||||||||||||||0.005|' }, true],
-  ['cohort_af: can handle default parameters', { CSQ: '||||||||||||||||||||||||||||||||||||' }, true],
-  ['cohort_af: can handle default parameters', { CSQ: '||||||||||||' }, true],
-])('%s: %j equals %p', (a, info, expected) => {
-  expect(cohort_af(info)).toBe(expected)
+  ['gte_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'gte_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    false,
+  ],
+  ['gte_filter: meets criteria', { CSQ: '|0.1|||||||||||||||||||||||||||||||||||' }, undefined, undefined, 0.01, true],
+  [
+    'gte_filter: does not meet criteria',
+    { CSQ: '|0.01|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    0.1,
+    false,
+  ],
+  [
+    'gte_filter: can handle setting key and position',
+    { BSQ: '||0.1||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.1,
+    true,
+  ],
+])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
+  expect(gte_filter(info, key, position, cutoff)).toBe(expected)
+})
+
+test.each([
+  ['lte_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'lte_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    false,
+  ],
+  ['lte_filter: meets criteria', { CSQ: '|0.01|||||||||||||||||||||||||||||||||||' }, undefined, undefined, 0.1, true],
+  [
+    'lte_filter: does not meet criteria',
+    { CSQ: '|0.1|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    0.01,
+    false,
+  ],
+  [
+    'lte_filter: can handle setting key and position',
+    { BSQ: '||0.01||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.1,
+    true,
+  ],
+])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
+  expect(lte_filter(info, key, position, cutoff)).toBe(expected)
+})
+
+test.each([
+  ['maf_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'maf_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    true,
+  ],
+  [
+    'maf_filter: can handle missing data',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    undefined,
+    true,
+  ],
+  ['maf_filter: meets criteria', { CSQ: '|0.01|||||||||||||||||||||||||||||||||||' }, undefined, undefined, 0.1, true],
+  [
+    'maf_filter: does not meet criteria',
+    { CSQ: '|0.1|||||||||||||||||||||||||||||||||||' },
+    undefined,
+    undefined,
+    0.01,
+    false,
+  ],
+  [
+    'maf_filter: can handle setting key and position',
+    { BSQ: '||0.01||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.1,
+    true,
+  ],
+])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
+  expect(maf_filter(info, key, position, cutoff)).toBe(expected)
 })
