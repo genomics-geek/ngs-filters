@@ -57,8 +57,8 @@ test.each([
 })
 
 test.each([
-  ['denovo: can handle missing parents', { alts: 1 }, { alts: 0 }, undefined, true],
-  ['denovo: can handle missing parents', { alts: 1 }, undefined, undefined, true],
+  ['denovo: can handle missing parents', { alts: 1 }, { alts: 0 }, undefined, false],
+  ['denovo: can handle missing parents', { alts: 1 }, undefined, undefined, false],
   ['denovo: parents are both homozygous REF', { alts: 1 }, { alts: 0 }, { alts: 0 }, true],
   ['denovo: proband is homozygous', { alts: 2 }, { alts: 0 }, { alts: 0 }, false],
   ['denovo: mom is heterozygous', { alts: 1 }, { alts: 1 }, { alts: 0 }, false],
