@@ -123,8 +123,8 @@ function compound_heterozygous_side(proband, mom, dad) {
   if (mom.affected || dad.affected) return false
 
   if (proband.alts == 1) {
-    if (mom.alts != undefined && mom.alts != 1) return false
-    if (dad.alts != undefined && dad.alts != 1) return false
+    if (mom.alts != undefined && mom.alts == 2) return false
+    if (dad.alts != undefined && dad.alts == 2) return false
   } else {
     return false
   }
