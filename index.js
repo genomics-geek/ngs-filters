@@ -18,8 +18,8 @@ function high_quality(sample, depth, gq) {
 }
 
 function uniparental_disomy(proband, mom, dad) {
-  if (mom == undefined) mom = {}
-  if (dad == undefined) dad = {}
+  if (mom == undefined) return false
+  if (dad == undefined) return false
   return (
     (proband.alts == 0 || proband.alts == 2) && ((mom.alts == 2 && dad.alts == 0) || (mom.alts == 0 && dad.alts == 2))
   )
