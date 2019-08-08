@@ -48,8 +48,8 @@ function dominant(proband, mom, dad) {
 }
 
 function denovo(proband, mom, dad) {
-  if (mom == undefined) mom = {}
-  if (dad == undefined) dad = {}
+  if (mom == undefined) return false
+  if (dad == undefined) return false
 
   if (mom.affected || dad.affected) return false
 
