@@ -37,8 +37,9 @@ test.each([
 })
 
 test.each([
-  ['uniparental_disomy: can handle missing dad', { alts: 2 }, { alts: 1 }, undefined, false],
-  ['uniparental_disomy: can handle missing mom', { alts: 2 }, undefined, { alts: 1 }, false],
+  ['uniparental_disomy: can handle missing dad', { alts: 2 }, { alts: 2 }, undefined, false],
+  ['uniparental_disomy: can handle missing mom', { alts: 2 }, undefined, { alts: 2 }, false],
+  ['uniparental_disomy: can handle missing parents', { alts: 2 }, undefined, undefined, false],
   ['uniparental_disomy: Not inherited (homozygous recessive)', { alts: 2 }, { alts: 1 }, { alts: 1 }, false],
   ['uniparental_disomy: 2 ALT alleles inherited from mom', { alts: 2 }, { alts: 2 }, { alts: 0 }, true],
   ['uniparental_disomy: 2 ALT alleles inherited from dad', { alts: 2 }, { alts: 0 }, { alts: 2 }, true],
