@@ -216,7 +216,7 @@ function gte_filter(INFO, key, position, cutoff) {
       data[position].split('&').forEach(function(score) {
         scores.push(parseFloat(score))
       })
-      const score = Math.max(...scores)
+      const score = Math.max.apply(null, scores)
       if (score >= parseFloat(cutoff)) impact = true
     }
   })
@@ -240,7 +240,7 @@ function lte_filter(INFO, key, position, cutoff) {
       data[position].split('&').forEach(function(score) {
         scores.push(parseFloat(score))
       })
-      const score = Math.min(...scores)
+      const score = Math.min.apply(null, scores)
       if (score <= parseFloat(cutoff)) impact = true
     }
   })
