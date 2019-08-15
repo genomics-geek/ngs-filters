@@ -424,6 +424,22 @@ test.each([
     0.1,
     true,
   ],
+  [
+    'gte_filter: can handle position with multiple values',
+    { BSQ: '||0.1&0.4||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.3,
+    true,
+  ],
+  [
+    'gte_filter: can handle position with multiple values',
+    { BSQ: '||0.1&0.4||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.5,
+    false,
+  ],
 ])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
   expect(gte_filter(info, key, position, cutoff)).toBe(expected)
 })
@@ -454,6 +470,22 @@ test.each([
     2,
     0.1,
     true,
+  ],
+  [
+    'lte_filter: can handle position with multiple values',
+    { BSQ: '||0.1&0.4||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.3,
+    true,
+  ],
+  [
+    'lte_filter: can handle position with multiple values',
+    { BSQ: '||0.6&0.7||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    0.5,
+    false,
   ],
 ])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
   expect(lte_filter(info, key, position, cutoff)).toBe(expected)
