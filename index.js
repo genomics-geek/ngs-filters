@@ -211,7 +211,14 @@ function gte_filter(INFO, key, position, cutoff) {
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = false
-    else if (data[position] >= parseFloat(cutoff)) impact = true
+    else {
+      const scores = []
+      data[position].split('&').forEach(function(score) {
+        scores.push(parseFloat(score))
+      })
+      const score = Math.max(...scores)
+      if (score >= parseFloat(cutoff)) impact = true
+    }
   })
 
   return impact
@@ -228,7 +235,14 @@ function lte_filter(INFO, key, position, cutoff) {
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = false
-    else if (data[position] <= parseFloat(cutoff)) impact = true
+    else {
+      const scores = []
+      data[position].split('&').forEach(function(score) {
+        scores.push(parseFloat(score))
+      })
+      const score = Math.min(...scores)
+      if (score <= parseFloat(cutoff)) impact = true
+    }
   })
 
   return impact
@@ -245,7 +259,7 @@ function maf_filter(INFO, key, position, cutoff) {
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = true
-    else if (data[position] <= parseFloat(cutoff)) impact = true
+    else if (parseFloat(data[position]) <= parseFloat(cutoff)) impact = true
   })
 
   return impact
