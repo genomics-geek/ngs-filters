@@ -51,8 +51,6 @@ function denovo(proband, mom, dad) {
   if (mom == undefined) return false
   if (dad == undefined) return false
 
-  if (mom.affected || dad.affected) return false
-
   if (proband.alts == 1) {
     if (mom.alts != undefined && mom.alts != 0) return false
     if (dad.alts != undefined && dad.alts != 0) return false
@@ -66,8 +64,6 @@ function denovo(proband, mom, dad) {
 function x_linked_denovo(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
-
-  if (mom.affected || dad.affected) return false
 
   if (proband.alts >= 1) {
     if (proband.sex != undefined && proband.sex != 'male') return false
@@ -84,8 +80,6 @@ function homozygous_recessive(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
 
-  if (mom.affected || dad.affected) return false
-
   if (proband.alts == 2) {
     if (mom.alts != undefined && mom.alts != 1) return false
     if (dad.alts != undefined && dad.alts != 1) return false
@@ -99,8 +93,6 @@ function homozygous_recessive(proband, mom, dad) {
 function x_linked_homozygous_recessive(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
-
-  if (mom.affected || dad.affected) return false
 
   if (proband.alts >= 1) {
     if (proband.sex != undefined && proband.sex != 'male') return false
@@ -119,8 +111,6 @@ function compound_heterozygous_side(proband, mom, dad) {
 
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
-
-  if (mom.affected || dad.affected) return false
 
   if (proband.alts == 1) {
     if (mom.alts != undefined && mom.alts == 2) return false
