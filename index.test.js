@@ -1,5 +1,6 @@
 const { allelic_balance_high_quality } = require('./index')
 const { high_quality } = require('./index')
+const { trio_quality } = require('./index')
 const { uniparental_disomy } = require('./index')
 const { sample_meets_dominant } = require('./index')
 const { dominant } = require('./index')
@@ -37,6 +38,67 @@ test.each([
 })
 
 test.each([
+  [
+    'trio_quality: all have good quality',
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    true,
+  ],
+  [
+    'trio_quality: kid is undefined',
+    undefined,
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    false,
+  ],
+  [
+    'trio_quality: kid is {}',
+    {},
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    false,
+  ],
+  [
+    'trio_quality: mom is undefined',
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    undefined,
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    true,
+  ],
+  [
+    'trio_quality: dad is undefined',
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    undefined,
+    true,
+  ],
+  [
+    'trio_quality: kid has bad quality',
+    { DP: 1, GQ: 1, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    false,
+  ],
+  [
+    'trio_quality: mom has bad quality',
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 1, GQ: 1, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    false,
+  ],
+  [
+    'trio_quality: dad has bad quality',
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 100, GQ: 100, alts: 1, AB: 0.5 },
+    { DP: 1, GQ: 1, alts: 1, AB: 0.5 },
+    false,
+  ],
+])('%s: kid: %j mom: %j dad: %j equals %p.', (a, kid, mom, dad, expected) => {
+  expect(trio_quality(kid, mom, dad)).toBe(expected)
+})
+
+test.each([
   ['uniparental_disomy: can handle missing dad', { alts: 2 }, { alts: 2 }, undefined, false],
   ['uniparental_disomy: can handle missing mom', { alts: 2 }, undefined, { alts: 2 }, false],
   ['uniparental_disomy: can handle missing parents', { alts: 2 }, undefined, undefined, false],
@@ -60,10 +122,24 @@ test.each([
 test.each([
   ['denovo: can handle missing parents', { alts: 1 }, { alts: 0 }, undefined, false],
   ['denovo: can handle missing parents', { alts: 1 }, undefined, undefined, false],
-  ['denovo: parents are both homozygous REF', { alts: 1 }, { alts: 0 }, { alts: 0 }, true],
-  ['denovo: proband is homozygous', { alts: 2 }, { alts: 0 }, { alts: 0 }, false],
-  ['denovo: mom is heterozygous', { alts: 1 }, { alts: 1 }, { alts: 0 }, false],
-  ['denovo: dad is heterozygous', { alts: 1 }, { alts: 0 }, { alts: 1 }, false],
+  ['denovo: parents are both homozygous REF', { alts: 1 }, { alts: 0, AD: [1, 0] }, { alts: 0, AD: [1, 0] }, true],
+  ['denovo: proband is homozygous', { alts: 2 }, { alts: 0, AD: [1, 0] }, { alts: 0, AD: [1, 0] }, false],
+  ['denovo: mom is heterozygous', { alts: 1 }, { alts: 1, AD: [1, 0] }, { alts: 0, AD: [1, 0] }, false],
+  ['denovo: dad is heterozygous', { alts: 1 }, { alts: 0, AD: [1, 0] }, { alts: 1, AD: [1, 0] }, false],
+  [
+    'denovo: parents are both homozygous REF but mom has some AD',
+    { alts: 1 },
+    { alts: 0, AD: [1, 1] },
+    { alts: 0, AD: [1, 0] },
+    false,
+  ],
+  [
+    'denovo: parents are both homozygous REF but dad has some AD',
+    { alts: 1 },
+    { alts: 0, AD: [1, 0] },
+    { alts: 0, AD: [1, 1] },
+    false,
+  ],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(denovo(kid, mom, dad)).toBe(expected)
 })
