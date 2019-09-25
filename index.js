@@ -13,8 +13,26 @@ function allelic_balance_high_quality(sample) {
 
 function high_quality(sample, depth, gq) {
   if (depth == undefined) depth = 5
-  if (gq == undefined) gq = 30
+  if (gq == undefined) gq = 10
   return sample.DP > depth && sample.GQ > gq
+}
+
+function trio_quality(proband, mom, dad) {
+  if (proband == undefined) return false
+  if (mom == undefined) mom = {}
+  if (dad == undefined) dad = {}
+
+  if (high_quality(proband) == false || allelic_balance_high_quality(proband) == false) return false
+
+  if (mom.DP != undefined && mom.GQ != undefined && mom.AB != undefined) {
+    if (high_quality(mom) == false || allelic_balance_high_quality(mom) == false) return false
+  }
+
+  if (dad.DP != undefined && dad.GQ != undefined && dad.AB != undefined) {
+    if (high_quality(dad) == false || allelic_balance_high_quality(dad) == false) return false
+  }
+
+  return true
 }
 
 function uniparental_disomy(proband, mom, dad) {
@@ -54,6 +72,7 @@ function denovo(proband, mom, dad) {
   if (proband.alts == 1) {
     if (mom.alts != undefined && mom.alts != 0) return false
     if (dad.alts != undefined && dad.alts != 0) return false
+    if (mom.AD[1] + dad.AD[1] > 0) return false
   } else {
     return false
   }
@@ -258,6 +277,7 @@ function maf_filter(INFO, key, position, cutoff) {
 module.exports = {
   allelic_balance_high_quality,
   high_quality,
+  trio_quality,
   uniparental_disomy,
   sample_meets_dominant,
   dominant,
