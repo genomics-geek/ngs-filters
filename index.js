@@ -84,13 +84,10 @@ function x_linked_denovo(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
 
-  if (proband.alts >= 1) {
-    if (proband.sex != undefined && proband.sex != 'male') return false
-    if (mom.alts != undefined && mom.alts != 0) return false
-    if (dad.alts != undefined && dad.alts != 0) return false
-  } else {
-    return false
-  }
+  if (proband.sex == 'male' && proband.alts == 0) return false
+  if (proband.sex == 'female' && proband.alts != 1) return false
+  if (mom.alts != undefined && mom.alts != 0) return false
+  if (dad.alts != undefined && dad.alts != 0) return false
 
   return true
 }
@@ -113,12 +110,13 @@ function x_linked_homozygous_recessive(proband, mom, dad) {
   if (mom == undefined) mom = {}
   if (dad == undefined) dad = {}
 
-  if (proband.alts >= 1) {
-    if (proband.sex != undefined && proband.sex != 'male') return false
-    if (mom.alts != undefined && mom.alts == 0) return false
-    if (dad.alts != undefined && dad.alts != 0) return false
-  } else {
-    return false
+  if (proband.sex == 'male') {
+    if (proband.alts == 0) return false
+    if (mom.alts != undefined && mom.alts != 1) return false
+  } else if (proband.sex == 'female') {
+    if (proband.alts != 2) return false
+    if (mom.alts != undefined && mom.alts != 1) return false
+    if (dad.alts != undefined && dad.alts == 0) return false
   }
 
   return true
