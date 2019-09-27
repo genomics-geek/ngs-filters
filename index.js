@@ -106,17 +106,20 @@ function homozygous_recessive(proband, mom, dad) {
   return true
 }
 
-function x_linked_homozygous_recessive(proband, mom, dad) {
-  if (mom == undefined) mom = {}
-  if (dad == undefined) dad = {}
+function x_linked_homozygous_recessive(proband, parent1, parent2) {
+  if (parent1 == undefined) parent1 = {}
+  if (parent2 == undefined) parent2 = {}
 
   if (proband.sex == 'male') {
     if (proband.alts == 0) return false
-    if (mom.alts != undefined && mom.alts != 1) return false
+    if (parent1.alts != undefined && parent1.alts != 1 && parent1.sex == 'female') return false
+    if (parent2.alts != undefined && parent2.alts != 1 && parent2.sex == 'female') return false
   } else if (proband.sex == 'female') {
     if (proband.alts != 2) return false
-    if (mom.alts != undefined && mom.alts != 1) return false
-    if (dad.alts != undefined && dad.alts == 0) return false
+    if (parent1.alts != undefined && parent1.alts != 1 && parent1.sex == 'female') return false
+    if (parent2.alts != undefined && parent2.alts != 1 && parent2.sex == 'female') return false
+    if (parent1.alts != undefined && parent1.alts == 0 && parent1.sex == 'male') return false
+    if (parent2.alts != undefined && parent2.alts == 0 && parent2.sex == 'male') return false
   }
 
   return true
