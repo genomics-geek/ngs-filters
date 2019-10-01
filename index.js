@@ -106,6 +106,24 @@ function homozygous_recessive(proband, mom, dad) {
   return true
 }
 
+function relaxed_homozygous_recessive(proband, mom, dad) {
+  // NOTE: This decision was decided by Laura Conlin.
+  // Decided that in case of deletion, some parents could be HOM REF, but really be hemizygous
+  if (mom == undefined) mom = {}
+  if (dad == undefined) dad = {}
+
+  if (proband.alts == 2) {
+    if (mom.alts != undefined && mom.alts == 2) return false
+    if (dad.alts != undefined && dad.alts == 2) return false
+  } else {
+    return false
+  }
+
+  if (mom.alts == 0 && dad.alts == 0) return false
+
+  return true
+}
+
 function x_linked_homozygous_recessive(proband, parent1, parent2) {
   if (parent1 == undefined) parent1 = {}
   if (parent2 == undefined) parent2 = {}
@@ -285,6 +303,7 @@ module.exports = {
   denovo,
   x_linked_denovo,
   homozygous_recessive,
+  relaxed_homozygous_recessive,
   x_linked_homozygous_recessive,
   compound_heterozygous_side,
   remove_compound_heterozygous_side,
