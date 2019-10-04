@@ -426,7 +426,7 @@ test.each([
     { alts: 2, sex: 'female' },
     { alts: 1, sex: 'female' },
     { alts: 1, sex: 'male' },
-    true,
+    false,
   ],
   [
     'x_linked_homozygous_recessive: homozygous REF female and both parents are heterozygous',
@@ -440,7 +440,7 @@ test.each([
     { alts: 2, sex: 'female' },
     { alts: 1, sex: 'female' },
     { alts: 2, sex: 'male' },
-    true,
+    false,
   ],
   [
     'x_linked_homozygous_recessive: heterozygous female and both parents are heterozygous',
@@ -461,6 +461,27 @@ test.each([
     { alts: 2, sex: 'female' },
     { alts: 1, sex: 'female' },
     { alts: 0, sex: 'male' },
+    true,
+  ],
+  [
+    'x_linked_homozygous_recessive: dad is hemizygous',
+    { alts: 2, sex: 'female' },
+    { alts: 1, sex: 'male' },
+    { alts: 1, sex: 'female' },
+    false,
+  ],
+  [
+    'x_linked_homozygous_recessive: mom is homozygous REF',
+    { alts: 2, sex: 'female' },
+    { alts: 0, sex: 'male' },
+    { alts: 0, sex: 'female' },
+    false,
+  ],
+  [
+    'x_linked_homozygous_recessive: proband is female and not homozygous ALT',
+    { alts: 1, sex: 'female' },
+    { alts: 0, sex: 'male' },
+    { alts: 1, sex: 'female' },
     false,
   ],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
