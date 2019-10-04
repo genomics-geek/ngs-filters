@@ -7,6 +7,7 @@ const { dominant } = require('./index')
 const { denovo } = require('./index')
 const { x_linked_denovo } = require('./index')
 const { homozygous_recessive } = require('./index')
+const { relaxed_homozygous_recessive } = require('./index')
 const { x_linked_homozygous_recessive } = require('./index')
 const { compound_heterozygous_side } = require('./index')
 const { remove_compound_heterozygous_side } = require('./index')
@@ -275,6 +276,77 @@ test.each([
   ],
 ])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
   expect(homozygous_recessive(kid, mom, dad)).toBe(expected)
+})
+
+test.each([
+  ['relaxed_homozygous_recessive: can handle missing parents', { alts: 2 }, undefined, undefined, true],
+  [
+    'relaxed_homozygous_recessive: mom is heterozygous and dad is heterozygous',
+    { alts: 2 },
+    { alts: 1 },
+    { alts: 1 },
+    true,
+  ],
+  [
+    'relaxed_homozygous_recessive: mom is homozygous and dad is heterozygous',
+    { alts: 2 },
+    { alts: 2 },
+    { alts: 1 },
+    false,
+  ],
+  [
+    'relaxed_homozygous_recessive: mom is heterozygous and dad is homozygous',
+    { alts: 2 },
+    { alts: 1 },
+    { alts: 2 },
+    false,
+  ],
+  ['relaxed_homozygous_recessive: proband is heterozygous', { alts: 1 }, { alts: 1 }, { alts: 2 }, false],
+  ['relaxed_homozygous_recessive: proband is reference', { alts: 0 }, { alts: 1 }, { alts: 2 }, false],
+  [
+    'relaxed_homozygous_recessive: proband is homozygous but mom is homozygous REF',
+    { alts: 2 },
+    { alts: 0 },
+    { alts: 2 },
+    false,
+  ],
+  [
+    'relaxed_homozygous_recessive: proband is homozygous but dad is homozygous REF',
+    { alts: 2 },
+    { alts: 1 },
+    { alts: 0 },
+    true,
+  ],
+  [
+    'relaxed_homozygous_recessive: proband is homozygous but mom is homozygous REF',
+    { alts: 2 },
+    { alts: 0 },
+    { alts: 1 },
+    true,
+  ],
+  [
+    'relaxed_homozygous_recessive: proband is homozygous but both parents are homozygous REF',
+    { alts: 2 },
+    { alts: 0 },
+    { alts: 0 },
+    false,
+  ],
+  [
+    'relaxed_homozygous_recessive: proband mom is missing and dad is homozygous REF',
+    { alts: 2 },
+    undefined,
+    { alts: 0 },
+    true,
+  ],
+  [
+    'relaxed_homozygous_recessive: proband dad is missing and mom is homozygous REF',
+    { alts: 2 },
+    { alts: 0 },
+    undefined,
+    true,
+  ],
+])('%s: Kid: %j Mom: %j Dad: %j equals %p', (a, kid, mom, dad, expected) => {
+  expect(relaxed_homozygous_recessive(kid, mom, dad)).toBe(expected)
 })
 
 test.each([
