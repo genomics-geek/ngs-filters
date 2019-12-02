@@ -18,6 +18,7 @@ const { match_filter } = require('./index')
 const { gte_filter } = require('./index')
 const { lte_filter } = require('./index')
 const { maf_filter } = require('./index')
+const { splitVEPItem } = require('./index')
 
 test.each([
   ['allelic_balance_high_quality: homozygous REF with high AB', { alts: 0, AB: 0.2 }, false],
@@ -640,6 +641,22 @@ test.each([
     ['frameshift'],
     true,
   ],
+  [
+    'match_filter: can handle mutliple values',
+    { BSQ: '||frameshift2&frameshift||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    ['frameshift'],
+    true,
+  ],
+  [
+    'match_filter: can handle mutliple values',
+    { BSQ: '||frameshift2&frameshift3||||||||||||||||||||||||||||||||||' },
+    'BSQ',
+    2,
+    ['frameshift'],
+    false,
+  ],
 ])('%s: %j key: %s position: %s types: %j equals %p', (a, info, key, position, types, expected) => {
   expect(match_filter(info, key, position, types)).toBe(expected)
 })
@@ -775,4 +792,11 @@ test.each([
   ],
 ])('%s: %j key: %s position: %s cutoff: %s equals %p', (a, info, key, position, cutoff, expected) => {
   expect(maf_filter(info, key, position, cutoff)).toBe(expected)
+})
+
+test.each([
+  ['splitVEPItem: can split 1 item', 'item1', ['item1']],
+  ['splitVEPItem: can split 1 item', 'item1&item2', ['item1', 'item2']],
+])('%s: %s equals %j', (a, observed, expected) => {
+  expect(splitVEPItem(observed)).toEqual(expected)
 })
