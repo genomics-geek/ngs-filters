@@ -217,7 +217,10 @@ function match_filter(INFO, key, position, types) {
     const data = effect.split('|')
     const element = data[position]
     types.forEach(function(type) {
-      if (element == type) result = true
+      const values = splitVEPItem(element)
+      values.forEach(function(value) {
+        if (value == type) result = true
+      })
     })
   })
 
@@ -237,8 +240,9 @@ function gte_filter(INFO, key, position, cutoff) {
     if (!data[position]) impact = false
     else {
       const scores = []
-      data[position].split('&').forEach(function(score) {
-        scores.push(parseFloat(score))
+      const values = splitVEPItem(data[position])
+      values.forEach(function(value) {
+        scores.push(parseFloat(value))
       })
       const score = Math.max.apply(null, scores)
       if (score >= parseFloat(cutoff)) impact = true
@@ -261,8 +265,9 @@ function lte_filter(INFO, key, position, cutoff) {
     if (!data[position]) impact = false
     else {
       const scores = []
-      data[position].split('&').forEach(function(score) {
-        scores.push(parseFloat(score))
+      const values = splitVEPItem(data[position])
+      values.forEach(function(value) {
+        scores.push(parseFloat(value))
       })
       const score = Math.min.apply(null, scores)
       if (score <= parseFloat(cutoff)) impact = true
@@ -283,10 +288,22 @@ function maf_filter(INFO, key, position, cutoff) {
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = true
-    else if (parseFloat(data[position]) <= parseFloat(cutoff)) impact = true
+    else {
+      const scores = []
+      const values = splitVEPItem(data[position])
+      values.forEach(function(score) {
+        scores.push(parseFloat(score))
+      })
+      const score = Math.min.apply(null, scores)
+      if (score <= parseFloat(cutoff)) impact = true
+    }
   })
 
   return impact
+}
+
+function splitVEPItem(data) {
+  return data.split('&')
 }
 
 module.exports = {
@@ -310,4 +327,5 @@ module.exports = {
   gte_filter,
   lte_filter,
   maf_filter,
+  splitVEPItem,
 }
