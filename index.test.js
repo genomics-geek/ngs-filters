@@ -216,8 +216,8 @@ test.each([
 })
 
 test.each([
-  ['x_linked_denovo: can handle missing parents', { alts: 1 }, { alts: 0 }, undefined, true],
-  ['x_linked_denovo: can handle missing parents', { alts: 1 }, undefined, undefined, true],
+  ['x_linked_denovo: can handle missing parents', { alts: 1 }, { alts: 0 }, undefined, false],
+  ['x_linked_denovo: can handle missing parents', { alts: 1 }, undefined, undefined, false],
   ['x_linked_denovo: can handle missing sex', { alts: 1 }, { alts: 0 }, { alts: 0 }, true],
   [
     'x_linked_denovo: male proband w/ homozygous(hemi but not in VCF) and parents are both homozygous REF',

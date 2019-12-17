@@ -81,8 +81,8 @@ function denovo(proband, mom, dad) {
 }
 
 function x_linked_denovo(proband, mom, dad) {
-  if (mom == undefined) mom = {}
-  if (dad == undefined) dad = {}
+  if (mom == undefined) return false
+  if (dad == undefined) return false
 
   if (proband.sex == 'male' && proband.alts == 0) return false
   if (proband.sex == 'female' && proband.alts != 1) return false
