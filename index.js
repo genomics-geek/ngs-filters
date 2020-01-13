@@ -170,13 +170,13 @@ function proband_has_variant(proband) {
   return proband.alts > 0
 }
 
-function present_in_database(INFO, key, position) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
-  if (!(key in INFO)) return false
-
+function present_in_database(INFO, headers, key) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
+  const position = headers.indexOf(key)
   var result = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (data[position]) result = true
@@ -186,14 +186,14 @@ function present_in_database(INFO, key, position) {
   return result
 }
 
-function includes_filter(INFO, key, position, types) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
+function includes_filter(INFO, headers, key, types) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
   if (types == undefined) types = []
-  if (!(key in INFO)) return false
-
+  const position = headers.indexOf(key)
   var result = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     const element = data[position]
@@ -205,14 +205,14 @@ function includes_filter(INFO, key, position, types) {
   return result
 }
 
-function match_filter(INFO, key, position, types) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
+function match_filter(INFO, headers, key, types) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
   if (types == undefined) types = []
-  if (!(key in INFO)) return false
-
+  const position = headers.indexOf(key)
   var result = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     const element = data[position]
@@ -227,14 +227,14 @@ function match_filter(INFO, key, position, types) {
   return result
 }
 
-function gte_filter(INFO, key, position, cutoff) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
-  if (cutoff == undefined) cutoff = 0.01
-  if (!(key in INFO)) return false
-
+function gte_filter(INFO, headers, key, cutoff) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
+  if (cutoff == undefined) return false
+  const position = headers.indexOf(key)
   var impact = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = false
@@ -252,14 +252,14 @@ function gte_filter(INFO, key, position, cutoff) {
   return impact
 }
 
-function lte_filter(INFO, key, position, cutoff) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
-  if (cutoff == undefined) cutoff = 0.01
-  if (!(key in INFO)) return false
-
+function lte_filter(INFO, headers, key, cutoff) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
+  if (cutoff == undefined) return false
+  const position = headers.indexOf(key)
   var impact = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = false
@@ -277,14 +277,14 @@ function lte_filter(INFO, key, position, cutoff) {
   return impact
 }
 
-function maf_filter(INFO, key, position, cutoff) {
-  if (key == undefined) key = 'CSQ'
-  if (position == undefined) position = 1
-  if (cutoff == undefined) cutoff = 0.01
-  if (!(key in INFO)) return false
-
+function maf_filter(INFO, headers, key, cutoff) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
+  if (cutoff == undefined) return false
+  const position = headers.indexOf(key)
   var impact = false
-  const effects = INFO[key].split(',')
+  const effects = INFO.CSQ.split(',')
   effects.forEach(function(effect) {
     const data = effect.split('|')
     if (!data[position]) impact = true
