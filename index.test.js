@@ -14,6 +14,7 @@ const { remove_compound_heterozygous_side } = require('./index')
 const { proband_has_variant } = require('./index')
 const { present_in_database } = require('./index')
 const { includes_filter } = require('./index')
+const { does_not_includes_filter } = require('./index')
 const { match_filter } = require('./index')
 const { gte_filter } = require('./index')
 const { lte_filter } = require('./index')
@@ -600,6 +601,52 @@ test.each([
   ['includes_filter: does not match', { CSQ: '|frameshift|' }, ['col1', 'col2', 'col3'], 'col2', ['missense'], false],
 ])('%s: %j headers: %s key: %s types: %j equals %p', (a, CSQ, headers, key, types, expected) => {
   expect(includes_filter(CSQ, headers, key, types)).toBe(expected)
+})
+
+test.each([
+  ['does_not_includes_filter: can handle missing', {}, undefined, undefined, undefined, false],
+  [
+    'does_not_includes_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    undefined,
+    'key',
+    [],
+    false,
+  ],
+  [
+    'does_not_includes_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    [],
+    undefined,
+    [],
+    false,
+  ],
+  [
+    'does_not_includes_filter: can handle default parameters',
+    { CSQ: '||||||||||||||||||||||||||||||||||||' },
+    [],
+    'key',
+    undefined,
+    true,
+  ],
+  [
+    'does_not_includes_filter: matches',
+    { CSQ: '|Benign/Likely_benign|' },
+    ['col1', 'col2', 'col3'],
+    'col2',
+    ['Benign/Likely_benign'],
+    false,
+  ],
+  [
+    'does_not_includes_filter: does not match',
+    { CSQ: '|Pathogenic|' },
+    ['col1', 'col2', 'col3'],
+    'col2',
+    ['Benign/Likely_benign'],
+    true,
+  ],
+])('%s: %j headers: %s key: %s types: %j equals %p', (a, CSQ, headers, key, types, expected) => {
+  expect(does_not_includes_filter(CSQ, headers, key, types)).toBe(expected)
 })
 
 test.each([

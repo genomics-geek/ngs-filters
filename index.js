@@ -205,6 +205,23 @@ function includes_filter(INFO, headers, key, types) {
   return result
 }
 
+function does_not_includes_filter(INFO, headers, key, types) {
+  if (!('CSQ' in INFO)) return false
+  if (key == undefined) return false
+  if (headers == undefined) return false
+  if (types == undefined) return true
+  const position = headers.indexOf(key)
+  var result = false
+  const effects = INFO.CSQ.split(',')
+  effects.forEach(function(effect) {
+    const data = effect.split('|')
+    const element = data[position]
+    if (!types.includes(element)) result = true
+  })
+
+  return result
+}
+
 function match_filter(INFO, headers, key, types) {
   if (!('CSQ' in INFO)) return false
   if (key == undefined) return false
@@ -323,6 +340,7 @@ module.exports = {
   proband_has_variant,
   present_in_database,
   includes_filter,
+  does_not_includes_filter,
   match_filter,
   gte_filter,
   lte_filter,
